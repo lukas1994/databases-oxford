@@ -18,29 +18,32 @@ using namespace std;
 
 void HeapPage::Init(PageID pageNo)
 {
-	//TODO: add your code here
+	pid = pageNo;
+	nextPage = INVALID_PAGE;
+	prevPage = INVALID_PAGE;
+	numOfSlots = 0;
+	fillPtr = HEAPPAGE_DATA_SIZE;
+	freeSpace = HEAPPAGE_DATA_SIZE;
 }
 
 void HeapPage::SetNextPage(PageID pageNo)
 {
-	//TODO: add your code here
+	nextPage = pageNo;
 }
 
 void HeapPage::SetPrevPage(PageID pageNo)
 {
-	//TODO: add your code here
+	prevPage = pageNo;
 }
 
 PageID HeapPage::GetNextPage()
 {
-	//TODO: add your code here
-  return NULL;
+	return nextPage;
 }
 
 PageID HeapPage::GetPrevPage()
 {
-	//TODO: add your code here
-  return NULL;
+	return prevPage;
 }
 
 
@@ -56,9 +59,22 @@ PageID HeapPage::GetPrevPage()
 
 Status HeapPage::InsertRecord(char *recPtr, int length, RecordID& rid)
 {
-	//TODO: add your code here
+	if (length > AvailableSpace()) return DONE;
+	freeSpace -= length + sizeof(Slot);
+	fillPtr -= length;
+	slots[numOfSlots].offset = fillPtr;
+	slots[numOfSlots].length = length;
+	memcpy(data + fillPtr, recPtr, length);
+	rid.pageNo = pid;
+	rid.slotNo = numOfSlots;
+	numOfSlots += 1;
+	return OK;
 }
 
+// Validates Record ID.
+bool HeapPage::validate(const RecordID& rid) {
+	return rid.pageNo == pid && 0 <= rid.slotNo && rid.slotNo < numOfSlots && !SLOT_IS_EMPTY(slots[rid.slotNo]);
+}
 
 //------------------------------------------------------------------
 // HeapPage::DeleteRecord 
@@ -71,7 +87,15 @@ Status HeapPage::InsertRecord(char *recPtr, int length, RecordID& rid)
 
 Status HeapPage::DeleteRecord(const RecordID& rid)
 {
-	//TODO: add your code here
+	if (!validate(rid))
+		return FAIL;
+	short length = slots[rid.slotNo].length;
+	short offset = slots[rid.slotNo].offset;
+	memmove(data + fillPtr + length, data + fillPtr, offset - fillPtr);
+	for (int i = rid.slotNo + 1; i < numOfSlots; i++) {
+		slots[i].offset += length;
+	}
+	SLOT_SET_EMPTY(slots[rid.slotNo]);
 	return OK;
 }
 
@@ -87,7 +111,13 @@ Status HeapPage::DeleteRecord(const RecordID& rid)
 
 Status HeapPage::FirstRecord(RecordID& rid)
 {
-	//TODO: add your code here
+	for (int i = 0; i < numOfSlots; i++) {
+		if (!SLOT_IS_EMPTY(slots[i])) {
+			rid.pageNo = pid;
+			rid.slotNo = i;
+			return OK;
+		}
+	}
 	return DONE;
 }
 
@@ -103,7 +133,15 @@ Status HeapPage::FirstRecord(RecordID& rid)
 
 Status HeapPage::NextRecord (RecordID curRid, RecordID& nextRid)
 {
-	//TODO: add your code here
+	if (!validate(curRid))
+		return FAIL;
+	for (int i = curRid.slotNo + 1; i < numOfSlots; i++) {
+		if (!SLOT_IS_EMPTY(slots[i])) {
+			nextRid.pageNo= pid;
+			nextRid.slotNo = i;
+			return OK;
+		}
+	}
 	return DONE;
 }
 
@@ -119,8 +157,11 @@ Status HeapPage::NextRecord (RecordID curRid, RecordID& nextRid)
 
 Status HeapPage::GetRecord(RecordID rid, char *recPtr, int& length)
 {
-	//TODO: add your code here
-    return OK;
+	if (!validate(rid))
+		return FAIL;
+	length = slots[rid.slotNo].length;
+	memcpy(recPtr, data + slots[rid.slotNo].offset, length);
+	return OK;
 }
 
 
@@ -135,8 +176,11 @@ Status HeapPage::GetRecord(RecordID rid, char *recPtr, int& length)
 
 Status HeapPage::ReturnRecord(RecordID rid, char*& recPtr, int& length)
 {
-	//TODO: add your code here
-    return OK;
+	if (!validate(rid))
+		return FAIL;
+	length = slots[rid.slotNo].length;
+	recPtr = data + slots[rid.slotNo].offset;
+	return OK;
 }
 
 
@@ -151,8 +195,7 @@ Status HeapPage::ReturnRecord(RecordID rid, char*& recPtr, int& length)
 
 int HeapPage::AvailableSpace(void)
 {
-	//TODO: add your code here
-	return 0;
+	return freeSpace - sizeof(Slot);
 }
 
 
@@ -167,19 +210,32 @@ int HeapPage::AvailableSpace(void)
 
 bool HeapPage::IsEmpty(void)
 {
-	//TODO: add your code here
-	return true;
+	return numOfSlots == 0;
 }
 
 
 void HeapPage::CompactSlotDir()
 {
-  // Complete this method to get the S+ mark.
-  // This method is not required for an S mark.
+	short newNumOfSlots = 0;
+	short newFillPtr = HEAPPAGE_DATA_SIZE;
+	short newFreeSpace = HEAPPAGE_DATA_SIZE;
+	short lastSlot = 0;
+	for (short i = 0; i < numOfSlots; i++) {
+		if (SLOT_IS_EMPTY(slots[i])) continue;
+		short length = slots[i].length;
+		newFillPtr -= length;
+		slots[lastSlot].length = length;
+		slots[lastSlot].offset = newFillPtr;
+		newFreeSpace -= length + sizeof(Slot);
+		memmove(data + newFillPtr, data + slots[i].offset, length);
+		lastSlot++;
+	}
+	fillPtr = newFillPtr;
+	freeSpace = newFreeSpace;
+	numOfSlots = lastSlot;
 }
 
 int HeapPage::GetNumOfRecords()
 {
-	//TODO: add your code here
-  return 0;
+	return numOfSlots;
 }

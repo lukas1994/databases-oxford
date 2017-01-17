@@ -46,6 +46,7 @@ protected :
 			     // a page. 
 
 	void CompactSlotDir();
+	bool validate(const RecordID& rid);
 
 public:
 
