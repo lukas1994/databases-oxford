@@ -12,7 +12,13 @@
 
 BufMgr::BufMgr( int bufSize )
 {
-	//TODO: add your code here
+	numOfBuf = bufSize;
+	frames = new Frame*[bufSize];
+	for (int i = 0; i < bufSize; i++) {
+		frames[i] = new Frame();
+	}
+	replacer = new Clock(bufSize, frames);
+	ResetStat();
 }
 
 
@@ -24,8 +30,10 @@ BufMgr::BufMgr( int bufSize )
 //--------------------------------------------------------------------
 
 BufMgr::~BufMgr()
-{   
-	//TODO: add your code here
+{
+	FlushAllPages();
+	delete replacer;
+	delete[] frames;
 }
 
 //--------------------------------------------------------------------
@@ -51,7 +59,27 @@ BufMgr::~BufMgr()
 
 Status BufMgr::PinPage(PageID pid, Page*& page, bool isEmpty)
 {
-	//TODO: add your code here
+	totalCall++;
+
+	int frameIndex = FindFrame(pid);
+
+	Frame* frame;
+	if (frameIndex == INVALID_FRAME) {
+		frameIndex = replacer->PickVictim();
+		if (frameIndex == INVALID_FRAME) return FAIL;
+		frame = frames[frameIndex];
+		if (isEmpty) {
+			frame->SetPageID(pid);
+		} else {
+			Status status = frame->Read(pid);
+			if (status != OK) return FAIL;
+		}
+	} else {
+		totalHit++;
+		frame = frames[frameIndex];
+	}
+	frame->Pin();
+	page = frame->GetPage();
 	return OK;
 } 
 
@@ -73,7 +101,12 @@ Status BufMgr::PinPage(PageID pid, Page*& page, bool isEmpty)
 
 Status BufMgr::UnpinPage(PageID pid, bool dirty)
 {
-	//TODO: add your code here
+	int frameIndex = FindFrame(pid);
+	if (frameIndex == INVALID_FRAME) return FAIL;
+	Frame* frame = frames[frameIndex];
+	if (frame->GetPinCount() == 0) return FAIL;
+	frame->Unpin();
+	if (dirty) frame->DirtyIt();
 	return OK;
 }
 
@@ -100,7 +133,12 @@ Status BufMgr::UnpinPage(PageID pid, bool dirty)
 
 Status BufMgr::NewPage (PageID& firstPid, Page*& firstPage, int howMany)
 {
-	//TODO: add your code here
+	if (howMany < 1) return FAIL;
+	if (MINIBASE_DB->AllocatePage(firstPid, howMany) != OK) return FAIL;
+	if (PinPage(firstPid, firstPage, true) != OK) {
+		MINIBASE_DB->DeallocatePage(firstPid, howMany);
+		return FAIL;
+	}
 	return OK;
 }
 
@@ -124,7 +162,15 @@ Status BufMgr::NewPage (PageID& firstPid, Page*& firstPage, int howMany)
 
 Status BufMgr::FreePage(PageID pid)
 {
-	//TODO: add your code here
+	int frameIndex = FindFrame(pid);
+	if (frameIndex == INVALID_FRAME) {
+		MINIBASE_DB->DeallocatePage(pid);
+	} else {
+		Frame* frame = frames[frameIndex];
+		if (frame->GetPinCount() > 1) return FAIL;
+		frame->EmptyIt();
+		MINIBASE_DB->DeallocatePage(pid);
+	}
 	return OK;
 }
 
@@ -145,8 +191,18 @@ Status BufMgr::FreePage(PageID pid)
 
 Status BufMgr::FlushPage(PageID pid)
 {
-	//TODO: add your code here
-	return OK;
+	if (pid == INVALID_PAGE) return FAIL;
+	int frameIndex = FindFrame(pid);
+	if (frameIndex == INVALID_FRAME) return FAIL;
+	Frame* frame = frames[frameIndex];
+	if (frame->GetPinCount() != 0) return FAIL;
+	Status status = OK;
+	if (frame->IsDirty()) {
+		status = frame->Write();
+		numDirtyPageWrites++;
+	}
+	frame->EmptyIt();
+	return status;
 } 
 
 //--------------------------------------------------------------------
@@ -163,8 +219,16 @@ Status BufMgr::FlushPage(PageID pid)
 
 Status BufMgr::FlushAllPages()
 {
-	//TODO: add your code here
-	return OK;
+	Status status = OK;
+	for (int i = 0; i < numOfBuf; i++) {
+		if (frames[i]->GetPinCount() != 0) status = FAIL;
+		if (frames[i]->IsDirty()) {
+			frames[i]->Write();
+			numDirtyPageWrites++;
+		}
+		frames[i]->EmptyIt();
+	}
+	return status;
 }
 
 
@@ -182,8 +246,11 @@ Status BufMgr::FlushAllPages()
 
 unsigned int BufMgr::GetNumOfUnpinnedFrames()
 {
-	//TODO: add your code here
-	return 0;
+	int count = 0;
+	for (int i = 0; i < numOfBuf; i++) {
+		if (frames[i]->GetPinCount() == 0) count++;
+	}
+	return count;
 }
 
 void  BufMgr::PrintStat() {
@@ -207,6 +274,8 @@ void  BufMgr::PrintStat() {
 
 int BufMgr::FindFrame( PageID pid )
 {
-	//TODO: add your code here
-	return 0;
+	for (int i = 0; i < numOfBuf; i++) {
+		if (frames[i]->GetPageID() == pid) return i;
+	}
+	return INVALID_FRAME;
 }

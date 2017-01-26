@@ -25,19 +25,11 @@ class Frame
 		void DirtyIt();
 		void SetPageID(PageID pid);
 		Bool IsDirty();
-		Bool IsValid();
 		Status Write();
 		Status Read(PageID pid);
-		Status Free();
-		Bool NotPinned();
-		Bool HasPageID(PageID pid);
 		PageID GetPageID();
 		Page *GetPage();
-
-		void UnsetReferenced();
-		Bool IsReferenced();
-		Bool IsVictim();
-
+		int GetPinCount();
 };
 
 #endif

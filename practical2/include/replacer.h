@@ -32,7 +32,7 @@ class Clock : public Replacer
 
 	public :
 		
-		Clock( int bufSize, Frame **frames, HashTable *hashTable );
+		Clock( int bufSize, Frame **frames );
 		~Clock();
 		int PickVictim();
 };

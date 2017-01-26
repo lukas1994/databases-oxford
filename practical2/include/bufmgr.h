@@ -16,7 +16,7 @@ class BufMgr
 		 * hashTable to give hash access to frames. No obligation to use it, however if you want to use it you need
 		 * define and implement the HashTable.cpp file
 		 */
-		HashTable *hashTable;
+		//HashTable *hashTable;
 		Frame **frames; //pool of frames
 
 		/*
