@@ -10,7 +10,8 @@
 # Compiled Static libraries
 *.lai
 *.la
-*.a
+./practical2/bufmgr/libbufmgr.a
+practical2/bufmgr/libbufmgr.a
 
 # bin directory
 bin
