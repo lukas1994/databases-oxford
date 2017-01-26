@@ -1,3 +1,5 @@
+#include <sys/time.h>
+
 #include "frame.h"
 #include "hash.h"
 
@@ -28,11 +30,21 @@ class Clock : public Replacer
 		int current;
 		int numOfBuf;
 		Frame **frames;
-		HashTable *hashTable;
 
 	public :
 		
 		Clock( int bufSize, Frame **frames );
 		~Clock();
+		int PickVictim();
+};
+
+class LRU : public Replacer
+{
+	private :
+		int numOfBuf;
+		Frame **frames;
+	public :
+		LRU( int bufSize, Frame **frames );
+		~LRU();
 		int PickVictim();
 };

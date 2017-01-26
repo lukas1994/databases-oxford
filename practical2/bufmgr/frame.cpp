@@ -9,6 +9,7 @@ Frame::~Frame(){
 }
 void Frame::Pin() {
 	pinCount++;
+	clock_gettime(CLOCK_REALTIME, &timestamp);
 }
 void Frame::Unpin() {
 	pinCount--;
@@ -18,6 +19,7 @@ void Frame::EmptyIt() {
 	pid = INVALID_PAGE;
 	pinCount = 0;
 	dirty = false;
+	clock_gettime(CLOCK_REALTIME, &timestamp);
 }
 void Frame::DirtyIt() {
 	dirty = true;
@@ -44,4 +46,7 @@ Page* Frame::GetPage() {
 }
 int Frame::GetPinCount() {
 	return pinCount;
+}
+long Frame::GetTimeStamp() {
+	timestamp.tv_nsec;
 }

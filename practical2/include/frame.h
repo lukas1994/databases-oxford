@@ -1,6 +1,8 @@
 #ifndef FRAME_H
 #define FRAME_H
 
+#include <sys/time.h>
+
 #include "page.h"
 
 #define INVALID_FRAME -1
@@ -13,7 +15,7 @@ class Frame
 		Page   *data;
 		int    pinCount;
 		int    dirty;
-		Bool referenced;
+		timespec timestamp;
 
 	public :
 		
@@ -30,6 +32,7 @@ class Frame
 		PageID GetPageID();
 		Page *GetPage();
 		int GetPinCount();
+		long GetTimeStamp();
 };
 
 #endif
