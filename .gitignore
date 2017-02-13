@@ -47,4 +47,5 @@ perf.*
 minibase-heappage
 core.*
 .DS_Store
+practial1/spacemgr/libspacemgr.a
 
