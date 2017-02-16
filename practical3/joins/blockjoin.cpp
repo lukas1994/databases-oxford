@@ -49,7 +49,6 @@ void BlockNestedLoopJoin(JoinSpec specOfR, JoinSpec specOfS, int B, long& pinReq
 	char* ptrBlock = new char[B];
 	int lenR = specOfR.recLen;
 	int recsPerBlock = B / lenR;
-	cout << "recsPerBlock: " << recsPerBlock << endl;
 
 	bool done = false;
 	while (!done) {
@@ -60,7 +59,6 @@ void BlockNestedLoopJoin(JoinSpec specOfR, JoinSpec specOfS, int B, long& pinReq
 				break;
 			}
 		}
-		cout << "read: " << read << endl;
 
 		Scan* scanS = specOfS.file->OpenScan(status);
 		if (status != OK) exit(1);

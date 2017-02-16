@@ -10,9 +10,9 @@
 
 int MINIBASE_RESTART_FLAG = 0;// used in minibase part
 
-#define NUM_OF_DB_PAGES  5000 // define # of DB pages
+#define NUM_OF_DB_PAGES  10000 // define # of DB pages
 #define NUM_OF_BUF_PAGES 50 // define Buf manager size.You will need to change this for the analysis
-#define REPS 10
+#define REPS 3
 
 void printStats(int sizeBuf, int sizeR, int sizeS) {
 	Status s;
@@ -74,20 +74,38 @@ void printStats(int sizeBuf, int sizeR, int sizeS) {
 		remove("MINIBASE.DB");
 	}
 
-	cout << "TupleNestedLoopJoin:" << endl;
-	cout << "pinRequests: " << pinRequests0 / REPS << endl;
-	cout << "pinMisses: " << pinMisses0 / REPS << endl;
-	cout << "duration: " << duration0 / REPS << "s" << endl;
+	cout << "  TupleNestedLoopJoin:" << endl;
+	cout << "    pinRequests: " << pinRequests0 / REPS << endl;
+	cout << "    pinMisses: " << pinMisses0 / REPS << endl;
+	cout << "    duration: " << duration0 / REPS << "s" << endl;
 
 	cout << endl;
-	cout << "BlockNestedLoopJoin (B=" << B << "):" << endl;
-	cout << "pinRequests: " << pinRequests1 / REPS << endl;
-	cout << "pinMisses: " << pinMisses1 / REPS << endl;
-	cout << "duration: " << duration1 / REPS << "s" << endl;
+	cout << "  BlockNestedLoopJoin (B=" << B << "):" << endl;
+	cout << "    pinRequests: " << pinRequests1 / REPS << endl;
+	cout << "    pinMisses: " << pinMisses1 / REPS << endl;
+	cout << "    duration: " << duration1 / REPS << "s" << endl;
 }
 
 int main() {
 	printStats(NUM_OF_BUF_PAGES, NUM_OF_REC_IN_R, NUM_OF_REC_IN_S);
+
+	cout << endl << "----- BUFFER SIZE -----" << endl;
+	for (int s = 16; s <= 1024; s *= 4) {
+		cout << "# SIZE: " << s << endl;
+		printStats(s, NUM_OF_REC_IN_R, NUM_OF_REC_IN_S);
+	}
+
+	cout << endl << "----- SIZE OF R -----" << endl;
+	for (int s = 100; s <= 10000; s *= 10) {
+		cout << "# SIZE: " << s << endl;
+		printStats(NUM_OF_BUF_PAGES, s, 1000);
+	}
+
+	cout << endl << "----- SIZE OF S -----" << endl;
+	for (int s = 100; s <= 10000; s *= 10) {
+		cout << "# SIZE: " << s << endl;
+		printStats(NUM_OF_BUF_PAGES, 1000, s);
+	}
 
 	return 0;
 }
