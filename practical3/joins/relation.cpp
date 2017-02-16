@@ -16,11 +16,11 @@ void toString(const int n, char* str)
 }
 
 //--------------------------------------------------------
-// Used in CreateR and CreateS, to generate random 
+// Used in CreateR and CreateS, to generate random
 // permutations.   Not useful.
 //--------------------------------------------------------
 
-static 
+static
 void RandomPermutate (short *permutation, int n)
 {
 	int temp, random;
@@ -40,12 +40,12 @@ void RandomPermutate (short *permutation, int n)
 
 
 //--------------------------------------------------------
-// Create a random relation R.  R is stored on disk as a 
-// HeapFile named "R".  R contains records of type 
+// Create a random relation R.  R is stored on disk as a
+// HeapFile named "R".  R contains records of type
 // Employee (defined in relation.h)
 //--------------------------------------------------------
 
-void CreateR()
+void CreateR(int numR, int numS)
 {
 	Status s;
 	HeapFile *F = new HeapFile ("R", s); // new HeapFile storing records of R
@@ -57,15 +57,15 @@ void CreateR()
 
 	Employee e;
 	RecordID rid;
-	short permutation[NUM_OF_REC_IN_R];
+	short permutation[numR];
 
-	RandomPermutate (permutation, NUM_OF_REC_IN_R); // generate a random array of integer
+	RandomPermutate (permutation, numR); // generate a random array of integer
 
-	for (int i = 0; i < NUM_OF_REC_IN_R; i++)
+	for (int i = 0; i < numR; i++)
 	{
 		e.id   = permutation[i];
 		e.age  = rand() % 20 + 20;
-		e.proj = rand() % NUM_OF_REC_IN_S;
+		e.proj = rand() % numS;
 		e.salary = (rand() % 300)*100;
 		e.rating = rand() % 5;
 		e.dept  = rand() % 30;
@@ -99,7 +99,7 @@ CreateSpecForR (JoinSpec &spec)
 	spec.file = new HeapFile (spec.relName, s);
 	if (s != OK)
 	{
-		cerr << "ERROR : cannot open HeapFile " << 
+		cerr << "ERROR : cannot open HeapFile " <<
 			spec.relName << endl;
 		exit(1);
 	}
@@ -108,12 +108,12 @@ CreateSpecForR (JoinSpec &spec)
 
 
 //--------------------------------------------------------
-// Create a random relation S.  S is stored on disk as a 
-// HeapFile named "S".  S contains records of type 
+// Create a random relation S.  S is stored on disk as a
+// HeapFile named "S".  S contains records of type
 // Project (defined in relation.h)
 //--------------------------------------------------------
 
-void CreateS()
+void CreateS(int num)
 {
 	Status s;
 	HeapFile *F = new HeapFile ("S", s);
@@ -125,14 +125,14 @@ void CreateS()
 
 	Project e;
 	RecordID rid;
-	short permutation[NUM_OF_REC_IN_S];
+	short permutation[num];
 
-	RandomPermutate (permutation, NUM_OF_REC_IN_S);
+	RandomPermutate (permutation, num);
 
-	for (int i = 0; i < NUM_OF_REC_IN_S; i++)
+	for (int i = 0; i < num; i++)
 	{
 		e.id   = permutation[i];
-		e.manager  = rand() % NUM_OF_REC_IN_R;
+		e.manager  = rand() % num;
 		e.fund = (rand() % 500)*10;
 		e.status = rand() % 5;
 

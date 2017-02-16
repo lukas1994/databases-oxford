@@ -32,4 +32,40 @@
 
 void TupleNestedLoopJoin(JoinSpec specOfR, JoinSpec specOfS, long& pinRequests, long& pinMisses, double& duration)
 {
+	MINIBASE_BM->ResetStat();
+	clock_t start = clock();
+	Status status = OK;
+
+	Scan* scanR = specOfR.file->OpenScan(status);
+	if (status != OK) exit(1);
+
+	HeapFile* result = new HeapFile(NULL, status);
+	if (status != OK) exit(1);
+
+	RecordID ridR, ridS, ridRes;
+	char* ptrR = new char[specOfR.recLen];
+	char* ptrS = new char[specOfS.recLen];
+
+	int recLenRes = specOfS.recLen + specOfR.recLen;
+	char* ptrRes = new char[recLenRes];
+
+	while (scanR->GetNext(ridR, ptrR, specOfR.recLen) == OK) {
+		Scan* scanS = specOfS.file->OpenScan(status);
+		if (status != OK) exit(1);
+
+		while (scanS->GetNext(ridS, ptrS, specOfS.recLen) == OK) {
+			if (ptrS[specOfS.offset] == ptrR[specOfR.offset]) {
+				MakeNewRecord(ptrRes, ptrR, ptrS, specOfR.recLen, specOfS.recLen);
+				result->InsertRecord(ptrRes, recLenRes, ridRes);
+			}
+		}
+		delete scanS;
+	}
+
+	delete scanR;
+	delete[] ptrR, ptrS, ptrRes;
+	delete result;
+
+	MINIBASE_BM->GetStat(pinRequests, pinMisses);
+	duration = (clock() - start) / (double) CLOCKS_PER_SEC;
 }
