@@ -36,8 +36,8 @@ typedef struct EmployeeProject {
 
 #define SWAP(i,j) {temp = i; i = j; j = temp;}
 
-void CreateS(); // Create Relation S
-void CreateR(); // Create Relation R
+void CreateS(int numS); // Create Relation S
+void CreateR(int numR, int numS); // Create Relation R
 void CreateSpecForS (JoinSpec &spec); // Create Join Specification for S
 void CreateSpecForR (JoinSpec &spec);// Create Join Specification for R
 HeapFile *SortFile(HeapFile *S, int len, int offset);
