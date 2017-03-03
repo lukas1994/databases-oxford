@@ -1,0 +1,115 @@
+  TupleNestedLoopJoin:
+    pinRequests: 596928
+    pinMisses: 512156
+    duration: 0.977054s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 67246
+    pinMisses: 1087
+    duration: 0.113553s
+
+----- BUFFER SIZE -----
+# SIZE: 16
+  TupleNestedLoopJoin:
+    pinRequests: 596928
+    pinMisses: 553666
+    duration: 0.981468s
+
+  BlockNestedLoopJoin (B=7168):
+    pinRequests: 68730
+    pinMisses: 2652
+    duration: 0.115805s
+# SIZE: 64
+  TupleNestedLoopJoin:
+    pinRequests: 596928
+    pinMisses: 845
+    duration: 0.758116s
+
+  BlockNestedLoopJoin (B=56320):
+    pinRequests: 67193
+    pinMisses: 1017
+    duration: 0.114487s
+# SIZE: 256
+  TupleNestedLoopJoin:
+    pinRequests: 596928
+    pinMisses: 747
+    duration: 0.80891s
+
+  BlockNestedLoopJoin (B=252928):
+    pinRequests: 66981
+    pinMisses: 777
+    duration: 0.119113s
+# SIZE: 1024
+  TupleNestedLoopJoin:
+    pinRequests: 596928
+    pinMisses: 459
+    duration: 0.828847s
+
+  BlockNestedLoopJoin (B=1039360):
+    pinRequests: 66981
+    pinMisses: 459
+    duration: 0.121167s
+
+----- SIZE OF R -----
+# SIZE: 100
+  TupleNestedLoopJoin:
+    pinRequests: 2461
+    pinMisses: 6
+    duration: 0.00285533s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 283
+    pinMisses: 6
+    duration: 0.000426667s
+# SIZE: 1000
+  TupleNestedLoopJoin:
+    pinRequests: 24497
+    pinMisses: 76
+    duration: 0.0293333s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 2519
+    pinMisses: 84
+    duration: 0.00378133s
+# SIZE: 10000
+  TupleNestedLoopJoin:
+    pinRequests: 286928
+    pinMisses: 747
+    duration: 0.33027s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 67060
+    pinMisses: 896
+    duration: 0.0699267s
+
+----- SIZE OF S -----
+# SIZE: 100
+  TupleNestedLoopJoin:
+    pinRequests: 6497
+    pinMisses: 68
+    duration: 0.004141s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 2501
+    pinMisses: 63
+    duration: 0.00106633s
+# SIZE: 1000
+  TupleNestedLoopJoin:
+    pinRequests: 24497
+    pinMisses: 76
+    duration: 0.0310053s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 2519
+    pinMisses: 84
+    duration: 0.004375s
+# SIZE: 10000
+  TupleNestedLoopJoin:
+    pinRequests: 209497
+    pinMisses: 209016
+    duration: 0.377443s
+
+  BlockNestedLoopJoin (B=41984):
+    pinRequests: 2704
+    pinMisses: 285
+    duration: 0.0305577s
