@@ -54,7 +54,7 @@ void TupleNestedLoopJoin(JoinSpec specOfR, JoinSpec specOfS, long& pinRequests, 
 		if (status != OK) exit(1);
 
 		while (scanS->GetNext(ridS, ptrS, specOfS.recLen) == OK) {
-			if (ptrS[specOfS.offset] == ptrR[specOfR.offset]) {
+			if (*((int*)(ptrS + specOfS.offset)) == *((int*)(ptrR + specOfR.offset))) {
 				MakeNewRecord(ptrRes, ptrR, ptrS, specOfR.recLen, specOfS.recLen);
 				result->InsertRecord(ptrRes, recLenRes, ridRes);
 			}

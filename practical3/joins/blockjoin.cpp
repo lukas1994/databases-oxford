@@ -65,7 +65,7 @@ void BlockNestedLoopJoin(JoinSpec specOfR, JoinSpec specOfS, int B, long& pinReq
 
 		while (scanS->GetNext(ridS, ptrS, specOfS.recLen) == OK) {
 			for (int i = 0; i < read; i++) {
-				if (ptrS[specOfS.offset] == ptrBlock[i*lenR+specOfR.offset]) {
+				if (*((int*)(ptrS + specOfS.offset)) == *((int*)(ptrBlock+i*lenR+specOfR.offset))) {
 					MakeNewRecord(ptrRes, ptrBlock+i*lenR, ptrS, specOfR.recLen, specOfS.recLen);
 					result->InsertRecord(ptrRes, recLenRes, ridRes);
 				}
